@@ -32,7 +32,7 @@ Clone the repository and make the script executable:
 
 ```bash
 git clone https://github.com/1r0nx/aletheia.git
-cd aletheia
+cd aletheia/src
 chmod +x aletheia.py
 ./aletheia.py
 ```
