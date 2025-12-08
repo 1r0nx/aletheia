@@ -26,7 +26,24 @@ Supported ciphers:
 
 ---
 
+## 🛠 Requirements
+
+- Python3
+- pyinstaller (if you need a binary)
+---
+
 ## 📦 Installation
+
+Clone the repository and create a binary:
+```bash
+sudo apt-get isntall python3 pyinstaller
+git clone https://github.com/1r0nx/aletheia.git
+cd aletheia
+chmod +x build.sh
+./build.sh
+sudo cp dist/aletheia /usr/bin/
+```
+You can now use it as a simple linux commands!
 
 Clone the repository and make the script executable:
 
@@ -37,16 +54,7 @@ chmod +x aletheia.py
 ./aletheia.py
 ```
 
-Or create a binary:
-```bash
-sudo apt-get isntall python3 pyinstaller
-git clone https://github.com/1r0nx/aletheia.git
-cd aletheia
-chmod +x build.sh
-./build.sh
-```
-The executable will be in dist/
-You can copy it and use it as a simple linux commands!
+
 
 ---
 
@@ -199,13 +207,6 @@ key = 010 | period = 012 || output = Hello World
 key = 010 | period = 016 || output = o WorllldeH
 key = 010 | period = 017 || output =  WoorllldeH
 ```
-
----
-
-## 🛠 Requirements
-
-- Python3
-- pyinstaller (if you need a binary)
 
 ---
 
