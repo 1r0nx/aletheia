@@ -25,6 +25,94 @@ def display_art():
     print(art)
 
 
+def atbash_decode(string: str):
+    out = []
+    for ch in string:
+        if "A" <= ch <= "Z":
+            out.append(chr(ord("Z") - (ord(ch) - ord("A"))))
+        elif "a" <= ch <= "z":
+            out.append(chr(ord("z") - (ord(ch) - ord("a"))))
+        else:
+            out.append(ch)
+    return "".join(out)
+
+
+def vigenere_decode(ciphertext: str, key: str) -> str:
+    plaintext = ""
+    key_index = 0
+    key = key.lower()
+
+    for ch in ciphertext:
+        if ch.isalpha():
+            shift = ord(key[key_index % len(key)]) - ord("a")
+            if ch.isupper():
+                decoded = chr((ord(ch) - ord("A") - shift) % 26 + ord("A"))
+            else:
+                decoded = chr((ord(ch) - ord("a") - shift) % 26 + ord("a"))
+            plaintext += decoded
+            key_index += 1
+        else:
+            plaintext += ch
+
+    return plaintext
+
+
+def rail_fence(ciphertext, key, offset=0):
+    L = len(ciphertext)
+    total_cols = L + offset  # offset = ghost columns
+
+    # Step 1: create empty rail matrix
+    rail = [["*" for _ in range(total_cols)] for _ in range(key)]
+
+    # Step 2: trace zigzag path (including ghost columns)
+    row = 0
+    col = 0
+    direction_down = True
+
+    for _ in range(total_cols):
+        # mark only real columns (those >= offset)
+        if col >= offset:
+            rail[row][col] = "mkr"
+
+        col += 1
+
+        if row == 0:
+            direction_down = True
+        elif row == key - 1:
+            direction_down = False
+
+        row = row + 1 if direction_down else row - 1
+
+    # Step 3: fill ciphertext into markers left→right, top→bottom
+    idx = 0
+    for r in range(key):
+        for c in range(total_cols):
+            if rail[r][c] == "mkr":
+                rail[r][c] = ciphertext[idx]
+                idx += 1
+
+    # Step 4: read plaintext along zigzag
+    plaintext = []
+    row = 0
+    col = 0
+    direction_down = True
+
+    for _ in range(total_cols):
+        if col >= offset and rail[row][col] != "*":
+            plaintext.append(rail[row][col])
+
+        col += 1
+
+        if row == 0:
+            direction_down = True
+        elif row == key - 1:
+            direction_down = False
+
+        row = row + 1 if direction_down else row - 1
+
+    return "".join(plaintext)
+
+
 def rot_13(text: str, n: int) -> str:
     result = ""
     for char in text:
