@@ -1,6 +1,6 @@
 # Aletheia
 
-Aletheia is a command-line tool designed to perform **brute-force attacks on common substitution ciphers**. It helps you quickly test and decode encrypted text using several classical cryptographic techniques.
+Aletheia is a command-line tool designed to perform **decode or brute-force attacks on common substitution ciphers**. It helps you quickly test and decode encrypted text using several classical cryptographic techniques.
 
 ---
 
@@ -18,11 +18,16 @@ The name **Aletheia** comes from the Greek word meaning *truth* or *unconcealmen
 - Useful for CTF's, cryptography learning, and quick cipher analysis
 
 Supported ciphers:
-- ROT13
-- ROT47
-- Affine
-- Vigenère
-- Rail Fence
+- xor
+- atbash
+- vigenere
+- rail fence
+- xor brute force (based on key lenght)
+- rot13 brute force
+- rot47 brute force
+- affine brute force
+- vigenere brute force
+- rail fence brute force
 
 ---
 
@@ -30,6 +35,7 @@ Supported ciphers:
 
 - Python3
 - pyinstaller (if you need a binary)
+
 ---
 
 ## 📦 Installation
@@ -54,15 +60,7 @@ chmod +x aletheia.py
 ./aletheia.py
 ```
 
-
-
 ---
-
-## 🚀 Usage
-
-```bash
-./aletheia.py [-h] {rot13,rot47,affine,vigenere,rail_fence} options
-```
 
 ### Global Help
 
@@ -72,6 +70,8 @@ chmod +x aletheia.py
 
 Output:
 ```text
+❯ aletheia 
+
                                                                 ##              
    :##:    ####                          ##                     ##              
     ##     ####                  ##      ##                     ##              
@@ -86,27 +86,60 @@ Output:
  ###  ###    #####   .#######    #####   ##    ##  .#######  ########  ######## 
  ##:  :##    .####    .#####:    .####   ##    ##   .#####:  ########    ###.## 
     
-usage: aletheia.py [-h] {rot13,rot47,affine,vigenere,rail_fence} ...
+usage: aletheia [-h] {xor,atbash,vigenere,rail_fence,xor_brute,rot13,rot47,affine,vigenere_brute,rail_fence_brute} ...
 
 brute force of some substitution ciphers
 
 positional arguments:
-  {rot13,rot47,affine,vigenere,rail_fence}
+  {xor,atbash,vigenere,rail_fence,xor_brute,rot13,rot47,affine,vigenere_brute,rail_fence_brute}
+    xor                 decode xor cipher
+    atbash              decode atbash cipher
+    vigenere            decode vigenere cipher
+    rail_fence          decode rail fence cipher
+    xor_brute           brute force xor
     rot13               brute force rot13 cipher
     rot47               brute force rot47 cipher
     affine              brute force affine cipher
-    vigenere            brute force vigenere cipher
-    rail_fence          brute force rail fence cipher
+    vigenere_brute      brute force vigenere cipher
+    rail_fence_brute    brute force rail fence cipher
 
 options:
   -h, --help            show this help message and exit
-
 
 ```
 
 ---
 
 ## 🔓 Cipher Modules
+
+### XOR
+
+### Atbash
+
+### Vigenère Cipher
+Bruteforces possible keys based on length provided. 1 < len(key) < 5.
+![affine](img/vigenere_cipher.png)
+```bash
+./aletheia.py vigenere -s "Rijvs Uyvjn" -l 3
+```
+
+Output:
+```text
+[+] Test of 17576 possible keys...
+[possible_key=aaa] Rijvs Uyvjn
+[possible_key=aab] Riivs Tyvin
+...
+...
+[possible_key=key] Hello World
+...
+...
+[possible_key=zzy] Sjlwt Wzwlo
+[possible_key=zzz] Sjkwt Vzwko
+```
+
+### Rail fence
+
+### XOR Brute force
 
 ### ROT13
 Brute force ROT13 substitution.
@@ -165,30 +198,10 @@ a = 25, b = 24 -> Tchhy Ayphf
 a = 25, b = 25 -> Udiiz Bzqig
 ```
 
-
-### Vigenère Cipher
-Bruteforces possible keys based on length provided. 1 < len(key) < 5.
-![affine](img/vigenere_cipher.png)
-```bash
-./aletheia.py vigenere -s "Rijvs Uyvjn" -l 3
-```
-
-Output:
-```text
-[+] Test of 17576 possible keys...
-[possible_key=aaa] Rijvs Uyvjn
-[possible_key=aab] Riivs Tyvin
-...
-...
-[possible_key=key] Hello World
-...
-...
-[possible_key=zzy] Sjlwt Wzwlo
-[possible_key=zzz] Sjkwt Vzwko
-```
+### Vigenère Bruteforce
 
 
-### Rail Fence Cipher
+### Rail Fence Cipher Brute force
 Tests various rail counts and offset.
 ![affine](img/rail_fence_cipher.png)
 ```bash
