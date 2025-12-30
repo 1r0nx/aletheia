@@ -11,6 +11,23 @@ parser = argparse.ArgumentParser(description="brute force of some substitution c
 # Set the subparser
 subparsers = parser.add_subparsers(dest="cipher", required=True)
 
+# xor subparser
+xor_parser = subparsers.add_parser("xor", help="decode xor cipher")
+xor_parser.add_argument(
+    "-c", "--string",
+    metavar="string",
+    type=str,
+    required=True,
+    help="ciphertext in hex/bin/utf-8 format"
+)
+xor_parser.add_argument(
+    "-k", "--key",
+    metavar="key",
+    type=str,
+    required=True,
+    help="XOR key in hex/bin/utf-8 format"
+)
+
 # atbash subparser
 atbash_parser = subparsers.add_parser("atbash", help="decode atbash cipher")
 atbash_parser.add_argument(
@@ -67,6 +84,23 @@ rail_fence.add_argument(
     default=0,
     metavar="offset",
     help="the offset. by default it's 0",
+)
+
+# xor_bruteforce
+xor_bruteforce_parser = subparsers.add_parser("xor_brute", help="brute force xor")
+xor_bruteforce_parser.add_argument(
+    "-c", "--string",
+    metavar="string",
+    type=str,
+    required=True,
+    help="ciphertext in hex / bin / utf-8 format"
+)
+xor_bruteforce_parser.add_argument(
+    "-l", "--length",
+    type=int,
+    metavar="len",
+    required=True,
+    help="XOR key length to brute-force (max=4)"
 )
 
 # rot13 subparser
@@ -165,6 +199,34 @@ if args.cipher == "vigenere":
 if args.cipher == "rail_fence":
     res = brute_force.rail_fence(args.string, args.key, args.offset)
     print(res)
+
+if args.cipher == "xor":
+    cipher_bytes = brute_force.to_bytes(args.string)
+    key_bytes = brute_force.to_bytes(args.key)
+    res = brute_force.xor_bytes(cipher_bytes, key_bytes)
+    print(f"\nXOR Result: {res.decode(errors="ignore")}")
+
+if args.cipher == "xor_brute":
+    cipher_bytes = brute_force.to_bytes(args.string)
+    key_length = args.length
+    if key_length > 4:
+        print("max key len is 4.")
+        sys.exit(0)
+    charset = string.printable.encode()
+    total_keys = len(charset) ** key_length
+    print(f"[+] Total keys to test: {total_keys:,}")
+    print(f"[+] Bruteforcing XOR keys of length {key_length}...\n")
+
+    for i, key in enumerate(itertools.product(charset, repeat=key_length)):
+        key_bytes = bytes(key)
+        decoded = brute_force.xor_bytes(cipher_bytes, key_bytes)
+
+        if brute_force.is_printable(decoded):
+            try:
+                text = decoded.decode("ascii")
+                print(f"{i} KEY = {key_bytes}  ->  {text.encode()}")
+            except UnicodeDecodeError:
+                pass
 
 if args.cipher == "rot13":
     for i in range(0, 26):

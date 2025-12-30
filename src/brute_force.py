@@ -1,8 +1,10 @@
 #!/usr/bin/ven python3
 
+import re
 import sys
 import math
 import string
+import binascii
 import itertools
 
 
@@ -265,3 +267,17 @@ def rail_fence(ciphertext, key, offset=0):
         row = row + 1 if direction_down else row - 1
 
     return "".join(plaintext)
+
+def to_bytes(s):
+    if re.fullmatch(r'(?:[01]{8})+', s):
+        return int(s, 2).to_bytes(len(s) // 8, "big")
+    if re.fullmatch(r'(?:[0-9a-fA-F]{2})+', s):
+        return binascii.unhexlify(s)
+    return s.encode()
+
+def xor_bytes(data, key):
+    return bytes([b ^ key[i % len(key)] for i, b in enumerate(data)])
+
+def is_printable(bs):
+    printable = set(bytes(string.printable, "ascii"))
+    return all(b in printable for b in bs)
