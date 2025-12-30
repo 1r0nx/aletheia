@@ -22,7 +22,7 @@ Supported ciphers:
 - atbash
 - vigenere
 - rail fence
-- xor brute force (based on key lenght)
+- xor brute force (based on key length)
 - rot13 brute force
 - rot47 brute force
 - affine brute force
@@ -51,6 +51,8 @@ sudo cp dist/aletheia /usr/bin/
 ```
 You can now use it as a simple linux commands!
 
+Or 
+
 Clone the repository and make the script executable:
 
 ```bash
@@ -64,11 +66,6 @@ chmod +x aletheia.py
 
 ### Global Help
 
-```bash
-./aletheia.py
-```
-
-Output:
 ```text
 ❯ aletheia 
 
@@ -112,11 +109,11 @@ options:
 
 ## 🔓 Cipher Modules
 
-### XOR
+### -XOR
 
-### Atbash
+### -Atbash
 
-### Vigenère Cipher
+### -Vigenère Cipher
 Bruteforces possible keys based on length provided. 1 < len(key) < 5.
 ![affine](img/vigenere_cipher.png)
 ```bash
@@ -137,11 +134,11 @@ Output:
 [possible_key=zzz] Sjkwt Vzwko
 ```
 
-### Rail fence
+### -Rail fence
 
-### XOR Brute force
+### -XOR Brute force
 
-### ROT13
+### -ROT13
 Brute force ROT13 substitution.
 ```bash
 ./aletheia.py rot13 -s "Uryyb Jbeyq"
@@ -160,7 +157,7 @@ Output:
 ```
 
 
-### ROT47
+### -ROT47
 Brute force ROT47 transformation.
 ```bash
 ./aletheia.py rot47 -s "w6==@ (@C=5P"
@@ -178,7 +175,7 @@ Output:
 ```
 
 
-### Affine Cipher
+### -Affine Cipher
 Attempts all valid affine key combinations.
 ![affine](img/affine_cipher.png)
 ```bash
@@ -198,10 +195,10 @@ a = 25, b = 24 -> Tchhy Ayphf
 a = 25, b = 25 -> Udiiz Bzqig
 ```
 
-### Vigenère Bruteforce
+### -Vigenère Bruteforce
 
 
-### Rail Fence Cipher Brute force
+### -Rail Fence Cipher Brute force
 Tests various rail counts and offset.
 ![affine](img/rail_fence_cipher.png)
 ```bash

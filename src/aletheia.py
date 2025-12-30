@@ -7,7 +7,7 @@ import string
 import sys
 
 # Set the main parser
-parser = argparse.ArgumentParser(description="brute force of some substitution ciphers")
+parser = argparse.ArgumentParser(description="decode or brute force of some substitution ciphers")
 # Set the subparser
 subparsers = parser.add_subparsers(dest="cipher", required=True)
 
