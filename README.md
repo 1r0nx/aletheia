@@ -154,7 +154,7 @@ this is vigenere cipher
 ### -Rail fence
 ![rail_fence](img/rail_fence.png)
 ```bash
-❯ aletheia rail_fence -s 'ti sri ec ihrhsi alfnecpe' -k 2 -o 6
+❯ aletheia rail_fence -s "li afre nscie  sciirhpeth" -k 12 -o 11
 ```
 
 Output:
