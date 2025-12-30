@@ -42,7 +42,7 @@ Supported ciphers:
 
 Clone the repository and create a binary:
 ```bash
-sudo apt-get isntall python3 pyinstaller
+sudo apt-get install python3 pyinstaller
 git clone https://github.com/1r0nx/aletheia.git
 cd aletheia
 chmod +x build.sh
@@ -83,26 +83,25 @@ chmod +x aletheia.py
  ###  ###    #####   .#######    #####   ##    ##  .#######  ########  ######## 
  ##:  :##    .####    .#####:    .####   ##    ##   .#####:  ########    ###.## 
     
-usage: aletheia [-h] {xor,atbash,vigenere,rail_fence,xor_brute,rot13,rot47,affine,vigenere_brute,rail_fence_brute} ...
+usage: aletheia [-h] {xor,atbash,vigenere,rail_fence,xor_brute,rot13_brute,rot47_brute,affine_brute,vigenere_brute,rail_fence_brute} ...
 
-brute force of some substitution ciphers
+decode or brute force of some substitution ciphers
 
 positional arguments:
-  {xor,atbash,vigenere,rail_fence,xor_brute,rot13,rot47,affine,vigenere_brute,rail_fence_brute}
+  {xor,atbash,vigenere,rail_fence,xor_brute,rot13_brute,rot47_brute,affine_brute,vigenere_brute,rail_fence_brute}
     xor                 decode xor cipher
     atbash              decode atbash cipher
     vigenere            decode vigenere cipher
     rail_fence          decode rail fence cipher
-    xor_brute           brute force xor
-    rot13               brute force rot13 cipher
-    rot47               brute force rot47 cipher
-    affine              brute force affine cipher
+    xor_brute           brute force xor cipher
+    rot13_brute         brute force rot13 cipher
+    rot47_brute         brute force rot47 cipher
+    affine_brute        brute force affine cipher
     vigenere_brute      brute force vigenere cipher
     rail_fence_brute    brute force rail fence cipher
 
 options:
   -h, --help            show this help message and exit
-
 ```
 
 ---
