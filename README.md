@@ -110,38 +110,82 @@ options:
 ## 🔓 Cipher Modules
 
 ### -XOR
+XOR Decoder
+![xor_brute](img/xor_brute.png)
+
+```bash
+❯ aletheia xor -s "1f0d10183a10183a1834111c1811" -k key
+
+XOR Result: this_is_a_test
+```
+
+```bash
+❯ aletheia xor -s "1f0d10183a10183a1834111c1811" -k 6B6579
+
+XOR Result: this_is_a_test
+```
+
+```bash
+❯ aletheia xor -s "1f0d10183a10183a1834111c1811" -k "011010110110010101111001"
+
+XOR Result: this_is_a_test
+```
 
 ### -Atbash
+![atbash](img/atbash.png)
+```bash
+❯ aletheia atbash -s "gsrh rh zgyzhs xrksvi" 
+```
+Output:
+```bash
+this is atbash cipher
+```
 
 ### -Vigenère Cipher
-Bruteforces possible keys based on length provided. 1 < len(key) < 5.
-![affine](img/vigenere_cipher.png)
+![viegenere](img/vigenere_bruteforce.png)
 ```bash
-./aletheia.py vigenere -s "Rijvs Uyvjn" -l 3
+❯ aletheia vigenere -s "dlgc mq fmeorcbi astfov" -k key
 ```
 
 Output:
-```text
-[+] Test of 17576 possible keys...
-[possible_key=aaa] Rijvs Uyvjn
-[possible_key=aab] Riivs Tyvin
-...
-...
-[possible_key=key] Hello World
-...
-...
-[possible_key=zzy] Sjlwt Wzwlo
-[possible_key=zzz] Sjkwt Vzwko
+```bash
+this is vigenere cipher
 ```
 
 ### -Rail fence
+![rail_fence](img/rail_fence.png)
+```bash
+❯ aletheia rail_fence -s 'ti sri ec ihrhsi alfnecpe' -k 2 -o 6
+```
+
+Output:
+```bash
+this is rail fence cipher
+```
 
 ### -XOR Brute force
+Brute force xor based on key length
+![xor_brute](img/xor_brute.png)
+
+```bash
+❯ aletheia xor_brute -s "1f0d10183a10183a1834111c1811" -l 3 | grep key
+```
+
+Output:
+```bash
+[+] Total keys to test: 1,000,000
+[+] Bruteforcing XOR keys of length 3...
+101530 KEY = b'afu'  ->  b'~key\\ey\\mUwiyw'
+...
+201434 KEY = b'key'  ->  b'this_is_a_test'
+....
+923890 KEY = b'}C{'  ->  b'bNkeykeycIRgeR'
+```
 
 ### -ROT13
 Brute force ROT13 substitution.
 ```bash
-./aletheia.py rot13 -s "Uryyb Jbeyq"
+./aletheia.py rot13_brute -s "Uryyb Jbeyq"
 ```
 
 Output:
@@ -160,7 +204,7 @@ Output:
 ### -ROT47
 Brute force ROT47 transformation.
 ```bash
-./aletheia.py rot47 -s "w6==@ (@C=5P"
+./aletheia.py rot47_brute -s "w6==@ (@C=5P"
 ```
 
 Output:
@@ -179,7 +223,7 @@ Output:
 Attempts all valid affine key combinations.
 ![affine](img/affine_cipher.png)
 ```bash
-./aletheia.py affine -t "Fwrra Yajrt"
+./aletheia.py affine_brute -t "Fwrra Yajrt"
 ```
 
 Output:
@@ -196,26 +240,44 @@ a = 25, b = 25 -> Udiiz Bzqig
 ```
 
 ### -Vigenère Bruteforce
+Bruteforces possible keys based on length provided. 1 < len(key) < 5.
+![affine](img/vigenere_cipher.png)
+```bash
+./aletheia.py vigenere_brute -s "Rijvs Uyvjn" -l 3
+```
 
+Output:
+```bash
+[+] Test of 17576 possible keys...
+[possible_key=aaa] Rijvs Uyvjn
+[possible_key=aab] Riivs Tyvin
+...
+...
+[possible_key=key] Hello World
+...
+...
+[possible_key=zzy] Sjlwt Wzwlo
+[possible_key=zzz] Sjkwt Vzwko
+```
 
 ### -Rail Fence Cipher Brute force
 Tests various rail counts and offset.
-![affine](img/rail_fence_cipher.png)
+![affine](img/rail_fence.png)
 ```bash
-./aletheia.py rail_fence -s "W oorllldeH"
+aletheia rail_fence_brute -s "li afre nscie  sciirhpeth"
 ```
 
 Output:
 ```text
-key = 002 | period = 000 || output = Wl lodoerHl
-key = 002 | period = 001 || output = lWl lodoerH
+key = 002 | period = 000 || output = l i  sacfirier hnpsectihe
+key = 002 | period = 001 || output = el i  sacfirier hnpsectih
 ...
 ...
-key = 010 | period = 012 || output = Hello World
+key = 012 | period = 011 || output = this is rail fence cipher
 ...
 ...
-key = 010 | period = 016 || output = o WorllldeH
-key = 010 | period = 017 || output =  WoorllldeH
+key = 024 | period = 044 || output = ail fre nscie  sciirhpeth
+key = 024 | period = 045 || output = il afre nscie  sciirhpeth
 ```
 
 ---
