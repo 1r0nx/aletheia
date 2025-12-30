@@ -26,7 +26,7 @@ Supported ciphers:
 - rot13 brute force
 - rot47 brute force
 - affine brute force
-- vigenere brute force
+- vigenere brute force (based on key length)
 - rail fence brute force
 
 ---
