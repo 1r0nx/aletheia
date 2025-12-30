@@ -14,7 +14,7 @@ subparsers = parser.add_subparsers(dest="cipher", required=True)
 # xor subparser
 xor_parser = subparsers.add_parser("xor", help="decode xor cipher")
 xor_parser.add_argument(
-    "-c", "--string",
+    "-s", "--string",
     metavar="string",
     type=str,
     required=True,
@@ -87,9 +87,9 @@ rail_fence.add_argument(
 )
 
 # xor_bruteforce
-xor_bruteforce_parser = subparsers.add_parser("xor_brute", help="brute force xor")
+xor_bruteforce_parser = subparsers.add_parser("xor_brute", help="brute force xor cipher")
 xor_bruteforce_parser.add_argument(
-    "-c", "--string",
+    "-s", "--string",
     metavar="string",
     type=str,
     required=True,
@@ -104,7 +104,7 @@ xor_bruteforce_parser.add_argument(
 )
 
 # rot13 subparser
-rot13_parser = subparsers.add_parser("rot13", help="brute force rot13 cipher")
+rot13_parser = subparsers.add_parser("rot13_brute", help="brute force rot13 cipher")
 rot13_parser.add_argument(
     "-s",
     "--string",
@@ -115,7 +115,7 @@ rot13_parser.add_argument(
 )
 
 # rot47 subparser
-rot47_parser = subparsers.add_parser("rot47", help="brute force rot47 cipher")
+rot47_parser = subparsers.add_parser("rot47_brute", help="brute force rot47 cipher")
 rot47_parser.add_argument(
     "-s",
     "--string",
@@ -127,7 +127,7 @@ rot47_parser.add_argument(
 
 
 # affine subparser
-affine_parser = subparsers.add_parser("affine", help="brute force affine cipher")
+affine_parser = subparsers.add_parser("affine_brute", help="brute force affine cipher")
 affine_parser.add_argument(
     "-s",
     "--string",
@@ -228,17 +228,17 @@ if args.cipher == "xor_brute":
             except UnicodeDecodeError:
                 pass
 
-if args.cipher == "rot13":
+if args.cipher == "rot13_brute":
     for i in range(0, 26):
         res = brute_force.rot_13(args.string, i)
         print(f"{i:2}: {res}")
 
-if args.cipher == "rot47":
+if args.cipher == "rot47_brute":
     for i in range(0, 94):
         res = brute_force.rot_47(args.string, i)
         print(f"{i:2}: {res}")
 
-if args.cipher == "affine":
+if args.cipher == "affine_brute":
     brute_force.affine(args.string)
 
 if args.cipher == "vigenere_brute":
