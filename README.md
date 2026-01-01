@@ -1,6 +1,6 @@
 # Aletheia
 
-Aletheia is a command-line tool designed to perform **decode or brute-force attacks on common substitution ciphers**. It helps you quickly test and decode encrypted text using several classical cryptographic techniques.
+Aletheia is a command-line tool designed to perform **decode or brute-force attacks on common ciphers**. It helps you quickly test and decode encrypted text using several classical cryptographic techniques.
 
 ---
 
