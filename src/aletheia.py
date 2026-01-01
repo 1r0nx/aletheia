@@ -7,7 +7,7 @@ import string
 import sys
 
 # Set the main parser
-parser = argparse.ArgumentParser(description="decode or brute force of some substitution ciphers")
+parser = argparse.ArgumentParser(description="decode or brute force some ciphers")
 # Set the subparser
 subparsers = parser.add_subparsers(dest="cipher", required=True)
 
@@ -18,7 +18,7 @@ xor_parser.add_argument(
     metavar="string",
     type=str,
     required=True,
-    help="ciphertext in hex/bin/utf-8 format"
+    help="string or ciphertext in hex/bin/utf-8 format"
 )
 xor_parser.add_argument(
     "-k", "--key",
@@ -100,7 +100,7 @@ xor_bruteforce_parser.add_argument(
     type=int,
     metavar="len",
     required=True,
-    help="XOR key length to brute-force (max=4)"
+    help="XOR key length to brute-force (max=4). be sure to filter the results with grep"
 )
 
 # rot13 subparser
@@ -156,7 +156,7 @@ vigenere_brute_force_parser.add_argument(
     type=int,
     metavar="len",
     required=True,
-    help="key len to brute force. 1 <= l <= 5. l=5 takes time. be sure to filter the results",
+    help="key len to brute force. (max=5). be sure to filter the results with grep",
 )
 
 # railfence brute force subparser
