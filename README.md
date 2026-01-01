@@ -85,7 +85,7 @@ chmod +x aletheia.py
     
 usage: aletheia [-h] {xor,atbash,vigenere,rail_fence,xor_brute,rot13_brute,rot47_brute,affine_brute,vigenere_brute,rail_fence_brute} ...
 
-decode or brute force of some substitution ciphers
+decode or brute force some substitution ciphers
 
 positional arguments:
   {xor,atbash,vigenere,rail_fence,xor_brute,rot13_brute,rot47_brute,affine_brute,vigenere_brute,rail_fence_brute}
