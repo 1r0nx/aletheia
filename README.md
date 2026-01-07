@@ -125,10 +125,18 @@ XOR Result: this_is_a_test
 ```
 
 ```bash
+❯ ./aletheia.py xor -s "1f0d10183a10183a1834111c1811" -k '[107, 101, 121]'
+
+XOR Result: this_is_a_test
+```
+Note: "[107, 101, 121]" is "key" is ascii
+
+```bash
 ❯ aletheia xor -s "1f0d10183a10183a1834111c1811" -k "011010110110010101111001"
 
 XOR Result: this_is_a_test
 ```
+
 
 ### -Atbash
 ![atbash](img/atbash.png)
