@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
 
-import argparse
-import brute_force
-import itertools
-import string
 import sys
+import string
+import argparse
+import itertools
+import brute_force
 
 # Set the main parser
 parser = argparse.ArgumentParser(description="decode or brute force some ciphers")
