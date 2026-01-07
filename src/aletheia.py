@@ -18,7 +18,7 @@ xor_parser.add_argument(
     metavar="string",
     type=str,
     required=True,
-    help="string or ciphertext in hex/bin/utf-8 format"
+    help="string or ciphertext in hex/bin/utf-8/list_of_bytes(\"[32,32,0,0,86,11,5,4]\") format"
 )
 xor_parser.add_argument(
     "-k", "--key",

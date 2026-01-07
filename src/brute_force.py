@@ -2,6 +2,7 @@
 
 import re
 import sys
+import ast
 import math
 import string
 import binascii
@@ -269,6 +270,9 @@ def rail_fence(ciphertext, key, offset=0):
     return "".join(plaintext)
 
 def to_bytes(s):
+    if s.startswith("[") and s.endswith("]"):
+        x = ast.literal_eval(s)
+        return x
     if re.fullmatch(r'(?:[01]{8})+', s):
         return int(s, 2).to_bytes(len(s) // 8, "big")
     if re.fullmatch(r'(?:[0-9a-fA-F]{2})+', s):
