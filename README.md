@@ -129,7 +129,7 @@ XOR Result: this_is_a_test
 
 XOR Result: this_is_a_test
 ```
-Note: "[107, 101, 121]" is "key" is ascii
+Note: "[107, 101, 121]" is "key" in ascii
 
 ```bash
 ❯ aletheia xor -s "1f0d10183a10183a1834111c1811" -k "011010110110010101111001"
