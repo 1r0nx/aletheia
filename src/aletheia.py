@@ -1,9 +1,10 @@
 #!/usr/bin/env python3
 
-import sys
-import string
 import argparse
 import itertools
+import string
+import sys
+
 import brute_force
 
 # Set the main parser
@@ -14,18 +15,20 @@ subparsers = parser.add_subparsers(dest="cipher", required=True)
 # xor subparser
 xor_parser = subparsers.add_parser("xor", help="decode xor cipher")
 xor_parser.add_argument(
-    "-s", "--string",
+    "-s",
+    "--string",
     metavar="string",
     type=str,
     required=True,
-    help="string or ciphertext in hex/bin/utf-8/list_of_bytes(\"[32,32,0,0,86,11,5,4]\") format"
+    help='string or ciphertext in hex/bin/utf-8/list_of_bytes("[32,32,0,0,86,11,5,4]") format',
 )
 xor_parser.add_argument(
-    "-k", "--key",
+    "-k",
+    "--key",
     metavar="key",
     type=str,
     required=True,
-    help="XOR key in hex/bin/utf-8 format"
+    help="XOR key in hex/bin/utf-8 format",
 )
 
 # atbash subparser
@@ -87,20 +90,24 @@ rail_fence.add_argument(
 )
 
 # xor_bruteforce
-xor_bruteforce_parser = subparsers.add_parser("xor_brute", help="brute force xor cipher")
+xor_bruteforce_parser = subparsers.add_parser(
+    "xor_brute", help="brute force xor cipher"
+)
 xor_bruteforce_parser.add_argument(
-    "-s", "--string",
+    "-s",
+    "--string",
     metavar="string",
     type=str,
     required=True,
-    help="ciphertext in hex / bin / utf-8 format"
+    help="ciphertext in hex / bin / utf-8 format",
 )
 xor_bruteforce_parser.add_argument(
-    "-l", "--length",
+    "-l",
+    "--length",
     type=int,
     metavar="len",
     required=True,
-    help="XOR key length to brute-force (max=4). be sure to filter the results with grep"
+    help="XOR key length to brute-force (max=4). be sure to filter the results with grep",
 )
 
 # rot13 subparser
@@ -204,7 +211,7 @@ if args.cipher == "xor":
     cipher_bytes = brute_force.to_bytes(args.string)
     key_bytes = brute_force.to_bytes(args.key)
     res = brute_force.xor_bytes(cipher_bytes, key_bytes)
-    print(f"\nXOR Result: {res.decode(errors="ignore")}")
+    print(f"\nXOR Result: {res.decode(errors='ignore')}")
 
 if args.cipher == "xor_brute":
     cipher_bytes = brute_force.to_bytes(args.string)
