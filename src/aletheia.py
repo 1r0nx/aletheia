@@ -156,7 +156,42 @@ vig_bf_p.add_argument("-s", "--string", metavar="CIPHERTEXT", required=True,
 vig_bf_p.add_argument("-l", "--len",    metavar="LEN", type=int, required=True,
                       help="key length to test (max 5)")
 
-# ── rail_fence_brute ───────────────────────────────────────────────────────────
+# ── xor_kpa ────────────────────────────────────────────────────────────────────
+kpa_p = subparsers.add_parser(
+    "xor_kpa",
+    help="XOR known-plaintext attack — recover key from a plaintext fragment",
+    description=(
+        "Known-Plaintext Attack against XOR.\n"
+        "For each (key_len, offset):\n"
+        "  key  = ciphertext[offset:offset+key_len] XOR known_plain[:key_len]\n"
+        "  test = ciphertext XOR key  →  shown if output meets printability threshold."
+    ),
+    formatter_class=_Fmt,
+    epilog=(
+        "Examples:\n"
+        "  aletheia xor_kpa -s <hex> -p 'CTF{'\n"
+        "  aletheia xor_kpa -s <hex> -p 'flag{' --key-len 8\n"
+        "  aletheia xor_kpa -s <hex> -p 'MZ'   --min 4 --max 32\n"
+        "  aletheia xor_kpa -s <hex> -p 'flag' --threshold 0.9 --limit 5"
+    ),
+)
+kpa_p.add_argument("-s", "--string",    metavar="CIPHERTEXT", required=True,
+                   help="ciphertext — hex / binary / UTF-8")
+kpa_p.add_argument("-p", "--plaintext", metavar="KNOWN_PT",   required=True,
+                   help="known plaintext fragment — hex / UTF-8")
+kpa_grp = kpa_p.add_mutually_exclusive_group()
+kpa_grp.add_argument("--key-len",   metavar="N",   type=int,
+                     help="fixed key length to test")
+kpa_grp.add_argument("--min",       metavar="N",   type=int,
+                     help="minimum key length (default: 1)")
+kpa_p.add_argument("--max",         metavar="N",   type=int,
+                   help="maximum key length (default: len(known_plain))")
+kpa_p.add_argument("--threshold",   metavar="0-1", type=float, default=1.0,
+                   help="printable-ASCII ratio required (default: 1.0 = strict)")
+kpa_p.add_argument("--limit",       metavar="N",   type=int,   default=0,
+                   help="stop after N hits (0 = unlimited)")
+
+
 rf_bf_p = subparsers.add_parser(
     "rail_fence_brute",
     help="brute-force Rail-Fence key and offset",
@@ -283,3 +318,40 @@ elif args.cipher == "rail_fence_brute":
                 f"  {brute_force.c(res, brute_force._GREEN)}"
             )
         print()
+elif args.cipher == "xor_kpa":
+    cipher_bytes = brute_force.to_bytes(args.string)
+    known_bytes  = brute_force.to_bytes(args.plaintext)
+
+    if args.key_len:
+        kl_min = kl_max = args.key_len
+    else:
+        kl_min = args.min if args.min else 1
+        kl_max = args.max if args.max else len(known_bytes)
+
+    if kl_min > kl_max:
+        brute_force.print_warn("--min must be ≤ --max")
+        sys.exit(1)
+
+    limit_str = "unlimited" if not args.limit else str(args.limit)
+    brute_force.print_section("XOR  —  Known-Plaintext Attack")
+    brute_force.print_info(f"ciphertext  : {len(cipher_bytes)} bytes  ({cipher_bytes[:16].hex(' ')}{'…' if len(cipher_bytes) > 16 else ''})")
+    brute_force.print_info(f"known plain : {known_bytes!r}  ({len(known_bytes)} bytes)")
+    brute_force.print_info(f"key length  : {kl_min}..{kl_max}")
+    brute_force.print_info(f"threshold   : {args.threshold:.0%}")
+    brute_force.print_info(f"limit       : {limit_str}\n")
+
+    hits = 0
+    for hit in brute_force.xor_kpa(cipher_bytes, known_bytes, kl_min, kl_max, args.threshold):
+        hits += 1
+        brute_force.print_kpa_hit(hit, hits)
+        if args.limit and hits >= args.limit:
+            print()
+            brute_force.print_warn(f"Limit of {args.limit} hit(s) reached.")
+            break
+
+    print()
+    if hits == 0:
+        brute_force.print_warn("No results — try --threshold 0.9 or widen --min/--max.")
+    else:
+        brute_force.print_info(brute_force.c(f"{hits} result(s) found.", brute_force._BOLD))
+    print()

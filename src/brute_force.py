@@ -223,6 +223,92 @@ def affine(text: str):
             print(f"  {c(f'a={a:2}, b={b:2}', _YELLOW)} → {c(''.join(out), _GREEN)}")
 
 
+def xor_repeat(data: bytes, key: bytes) -> bytes:
+    """XOR data with key repeated cyclically."""
+    key_len = len(key)
+    return bytes(data[i] ^ key[i % key_len] for i in range(len(data)))
+
+
+def is_fully_printable(data: bytes, threshold: float = 1.0) -> bool:
+    """Return True if the ratio of printable ASCII bytes meets the threshold."""
+    printable = sum(0x20 <= b <= 0x7E or b in (0x09, 0x0A, 0x0D) for b in data)
+    return (printable / len(data)) >= threshold if data else False
+
+
+def xor_kpa(
+    ciphertext:  bytes,
+    known_plain: bytes,
+    key_len_min: int,
+    key_len_max: int,
+    threshold:   float = 1.0,
+):
+    """
+    XOR Known-Plaintext Attack.
+
+    For each (key_len, offset):
+      key_candidate = ciphertext[offset:offset+key_len] XOR known_plain[:key_len]
+      plaintext     = ciphertext XOR key_candidate (repeated)
+    Yields dicts for every hit that meets the printability threshold.
+    """
+    ct_len = len(ciphertext)
+    kp_len = len(known_plain)
+
+    for key_len in range(key_len_min, key_len_max + 1):
+        # Extend known_plain if shorter than key_len
+        if kp_len >= key_len:
+            kp_chunk = known_plain[:key_len]
+        else:
+            kp_chunk = (known_plain * (key_len // kp_len + 1))[:key_len]
+
+        max_offset = ct_len - key_len
+        if max_offset < 0:
+            continue
+
+        for offset in range(max_offset + 1):
+            ct_chunk      = ciphertext[offset: offset + key_len]
+            key_candidate = xor_bytes(ct_chunk, kp_chunk)
+
+            if not key_candidate:
+                continue
+
+            plaintext = xor_repeat(ciphertext, key_candidate)
+
+            if is_fully_printable(plaintext, threshold):
+                yield {
+                    "key_len":   key_len,
+                    "offset":    offset,
+                    "key":       key_candidate,
+                    "plaintext": plaintext,
+                }
+
+
+def print_kpa_hit(hit: dict, index: int):
+    """Display a single xor_kpa hit with ANSI colours."""
+    key     = hit["key"]
+    pt      = hit["plaintext"]
+    offset  = hit["offset"]
+    key_len = hit["key_len"]
+
+    key_hex = key.hex(" ")
+    key_asc = "".join(chr(b) if 0x20 <= b <= 0x7E else "·" for b in key)
+    try:
+        pt_str = pt.decode("utf-8", errors="replace")
+    except Exception:
+        pt_str = repr(pt)
+
+    width = 60
+    bar   = c("─" * width, _GREEN)
+    print(f"\n  {bar}")
+    print(f"  {c(f'hit #{index}', _BOLD, _GREEN)}")
+    print(f"  {c('─' * width, _GREEN)}")
+    print(f"  {c('key len  :', _DIM)}  {c(str(key_len), _BOLD)}")
+    print(f"  {c('offset   :', _DIM)}  {c(f'{offset:#06x}  ({offset})', _BOLD)}")
+    print(f"  {c('key hex  :', _DIM)}  {c(key_hex, _CYAN)}")
+    print(f"  {c('key asc  :', _DIM)}  {c(key_asc, _MAGENTA)}")
+    print(f"  {c('plaintext:', _DIM)}  {c(pt_str, _GREEN)}")
+    print(f"  {bar}")
+
+
 def vigenere(ciphertext: str, n: int):
     """Brute-force Vigenère over all keys of the given length (max 5)."""
     if not 1 <= n <= 5:
