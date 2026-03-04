@@ -7,254 +7,279 @@ import sys
 
 import brute_force
 
-# Set the main parser
-parser = argparse.ArgumentParser(description="decode or brute force some ciphers")
-# Set the subparser
-subparsers = parser.add_subparsers(dest="cipher", required=True)
+# ─── Custom formatter for prettier help ───────────────────────────────────────
+class _Fmt(argparse.HelpFormatter):
+    """Coloured, slightly wider help formatter."""
+    _W = 80
 
-# xor subparser
-xor_parser = subparsers.add_parser("xor", help="decode xor cipher")
-xor_parser.add_argument(
-    "-s",
-    "--string",
-    metavar="string",
-    type=str,
-    required=True,
-    help='string or ciphertext in hex/bin/utf-8/list_of_bytes("[32,32,0,0,86,11,5,4]") format',
-)
-xor_parser.add_argument(
-    "-k",
-    "--key",
-    metavar="key",
-    type=str,
-    required=True,
-    help="XOR key in hex/bin/utf-8 format",
-)
+    def __init__(self, prog):
+        super().__init__(prog, max_help_position=36, width=self._W)
 
-# atbash subparser
-atbash_parser = subparsers.add_parser("atbash", help="decode atbash cipher")
-atbash_parser.add_argument(
-    "-s",
-    "--string",
-    type=str,
-    metavar="string",
-    required=True,
-    help="the string to decode",
-)
+    def _format_action_invocation(self, action):
+        base = super()._format_action_invocation(action)
+        return brute_force.c(base, brute_force._CYAN)
 
-# vigenere subparser
-vigenere_parser = subparsers.add_parser("vigenere", help="decode vigenere cipher")
-vigenere_parser.add_argument(
-    "-s",
-    "--string",
-    type=str,
-    metavar="string",
-    required=True,
-    help="the string to decode",
-)
-vigenere_parser.add_argument(
-    "-k",
-    "--key",
-    type=str,
-    metavar="key",
-    required=True,
-    help="the key to decode vigenere",
-)
+    def _format_usage(self, usage, actions, groups, prefix):
+        if prefix is None:
+            prefix = brute_force.c("Usage: ", brute_force._BOLD, brute_force._YELLOW)
+        return super()._format_usage(usage, actions, groups, prefix)
 
-# rail_fence subparser
-rail_fence = subparsers.add_parser("rail_fence", help="decode rail fence cipher")
-rail_fence.add_argument(
-    "-s",
-    "--string",
-    type=str,
-    metavar="string",
-    required=True,
-    help="the string to decode",
-)
-rail_fence.add_argument(
-    "-k",
-    "--key",
-    type=int,
-    metavar="key",
-    required=True,
-    help="the key [2, len(string)]",
-)
-
-rail_fence.add_argument(
-    "-o",
-    "--offset",
-    type=int,
-    default=0,
-    metavar="offset",
-    help="the offset. by default it's 0",
-)
-
-# xor_bruteforce
-xor_bruteforce_parser = subparsers.add_parser(
-    "xor_brute", help="brute force xor cipher"
-)
-xor_bruteforce_parser.add_argument(
-    "-s",
-    "--string",
-    metavar="string",
-    type=str,
-    required=True,
-    help="ciphertext in hex / bin / utf-8 format",
-)
-xor_bruteforce_parser.add_argument(
-    "-l",
-    "--length",
-    type=int,
-    metavar="len",
-    required=True,
-    help="XOR key length to brute-force (max=4). be sure to filter the results with grep",
-)
-
-# rot13 subparser
-rot13_parser = subparsers.add_parser("rot13_brute", help="brute force rot13 cipher")
-rot13_parser.add_argument(
-    "-s",
-    "--string",
-    type=str,
-    metavar="string",
-    required=True,
-    help="the string to brute force",
-)
-
-# rot47 subparser
-rot47_parser = subparsers.add_parser("rot47_brute", help="brute force rot47 cipher")
-rot47_parser.add_argument(
-    "-s",
-    "--string",
-    type=str,
-    metavar="string",
-    required=True,
-    help="the string to brute force",
-)
+    def start_section(self, heading):
+        heading = brute_force.c(heading, brute_force._BOLD, brute_force._BLUE) if heading else heading
+        super().start_section(heading)
 
 
-# affine subparser
-affine_parser = subparsers.add_parser("affine_brute", help="brute force affine cipher")
-affine_parser.add_argument(
-    "-s",
-    "--string",
-    type=str,
-    metavar="string",
-    required=True,
-    help="the string to brute force",
+# ─── Parsers ──────────────────────────────────────────────────────────────────
+parser = argparse.ArgumentParser(
+    prog="aletheia",
+    description=brute_force.c(
+        "Decode or brute-force classical ciphers.\n"
+        "  Supported: XOR · Atbash · Vigenère · Rail-Fence · ROT-13 · ROT-47 · Affine",
+        brute_force._DIM,
+    ),
+    formatter_class=_Fmt,
+    epilog=brute_force.c(
+        "Tip: pipe brute-force output through grep to filter results.\n"
+        "Example: aletheia xor_brute -s deadbeef -l 2 | grep 'flag'",
+        brute_force._DIM,
+    ),
 )
 
-# vigenere brute force subparser
-vigenere_brute_force_parser = subparsers.add_parser(
-    "vigenere_brute", help="brute force vigenere cipher"
-)
-vigenere_brute_force_parser.add_argument(
-    "-s",
-    "--string",
-    type=str,
-    metavar="string",
+subparsers = parser.add_subparsers(
+    dest="cipher",
     required=True,
-    help="the string to brute force",
+    title=brute_force.c("modes", brute_force._BOLD, brute_force._BLUE),
+    metavar="<mode>",
 )
 
-vigenere_brute_force_parser.add_argument(
-    "-l",
-    "--len",
-    type=int,
-    metavar="len",
-    required=True,
-    help="key len to brute force. (max=5). be sure to filter the results with grep",
+# ── xor ────────────────────────────────────────────────────────────────────────
+xor_p = subparsers.add_parser(
+    "xor",
+    help="decode an XOR-encrypted string with a known key",
+    description="XOR-decrypt a ciphertext given the key. Both string and key accept hex, binary, UTF-8, or a list of bytes (e.g. [32,0,86]).",
+    formatter_class=_Fmt,
 )
+xor_p.add_argument("-s", "--string", metavar="CIPHERTEXT", required=True,
+                   help="ciphertext — hex / binary / UTF-8 / [bytes]")
+xor_p.add_argument("-k", "--key",    metavar="KEY",        required=True,
+                   help="XOR key — hex / binary / UTF-8")
 
-# railfence brute force subparser
-rail_fence_bruteforce_parser = subparsers.add_parser(
-    "rail_fence_brute", help="brute force rail fence cipher"
+# ── atbash ─────────────────────────────────────────────────────────────────────
+atbash_p = subparsers.add_parser(
+    "atbash",
+    help="decode an Atbash cipher (A↔Z mirror substitution)",
+    formatter_class=_Fmt,
 )
-rail_fence_bruteforce_parser.add_argument(
-    "-s",
-    "--string",
-    type=str,
-    metavar="string",
-    required=True,
-    help="the string to brute force",
-)
+atbash_p.add_argument("-s", "--string", metavar="CIPHERTEXT", required=True,
+                      help="string to decode")
 
-# Display help if the script is runned without a cipher mode
+# ── vigenere ───────────────────────────────────────────────────────────────────
+vig_p = subparsers.add_parser(
+    "vigenere",
+    help="decode a Vigenère cipher with a known key",
+    formatter_class=_Fmt,
+)
+vig_p.add_argument("-s", "--string", metavar="CIPHERTEXT", required=True,
+                   help="string to decode")
+vig_p.add_argument("-k", "--key",    metavar="KEY",        required=True,
+                   help="Vigenère key (letters only)")
+
+# ── rail_fence ─────────────────────────────────────────────────────────────────
+rf_p = subparsers.add_parser(
+    "rail_fence",
+    help="decode a Rail-Fence cipher with a known key",
+    formatter_class=_Fmt,
+)
+rf_p.add_argument("-s", "--string", metavar="CIPHERTEXT", required=True,
+                  help="string to decode")
+rf_p.add_argument("-k", "--key",    metavar="RAILS", type=int, required=True,
+                  help="number of rails (2 ≤ rails ≤ len(string))")
+rf_p.add_argument("-o", "--offset", metavar="OFFSET", type=int, default=0,
+                  help="ghost-column offset (default: 0)")
+
+# ── xor_brute ──────────────────────────────────────────────────────────────────
+xor_bf_p = subparsers.add_parser(
+    "xor_brute",
+    help="brute-force XOR keys up to length 4",
+    description=(
+        "Test every printable-ASCII key of the given length.\n"
+        "Without --filter: all results are printed as raw bytes.\n"
+        "With    --filter: only lines whose output contains the given string are shown."
+    ),
+    formatter_class=_Fmt,
+    epilog="Example: aletheia xor_brute -s deadbeef -l 2 --filter flag",
+)
+xor_bf_p.add_argument("-s", "--string", metavar="CIPHERTEXT", required=True,
+                      help="ciphertext — hex / binary / UTF-8")
+xor_bf_p.add_argument("-l", "--length", metavar="LEN", type=int, required=True,
+                      help="key length to test (max 4)")
+xor_bf_p.add_argument("-f", "--filter", metavar="STRING", default=None,
+                      help="only show results whose decoded output contains STRING")
+
+# ── rot13_brute ────────────────────────────────────────────────────────────────
+rot13_p = subparsers.add_parser(
+    "rot13_brute",
+    help="try all 26 ROT-N shifts (ROT-1 … ROT-25)",
+    formatter_class=_Fmt,
+)
+rot13_p.add_argument("-s", "--string", metavar="CIPHERTEXT", required=True,
+                     help="string to brute-force")
+
+# ── rot47_brute ────────────────────────────────────────────────────────────────
+rot47_p = subparsers.add_parser(
+    "rot47_brute",
+    help="try all 94 ROT-47 shifts over printable ASCII",
+    formatter_class=_Fmt,
+)
+rot47_p.add_argument("-s", "--string", metavar="CIPHERTEXT", required=True,
+                     help="string to brute-force")
+
+# ── affine_brute ───────────────────────────────────────────────────────────────
+affine_p = subparsers.add_parser(
+    "affine_brute",
+    help="brute-force all valid affine cipher keys",
+    description="Tests all (a, b) pairs where gcd(a, 26) = 1 — 312 combinations total.",
+    formatter_class=_Fmt,
+)
+affine_p.add_argument("-s", "--string", metavar="CIPHERTEXT", required=True,
+                      help="string to brute-force")
+
+# ── vigenere_brute ─────────────────────────────────────────────────────────────
+vig_bf_p = subparsers.add_parser(
+    "vigenere_brute",
+    help="brute-force Vigenère keys of a given length (max 5)",
+    description="Exhaustively tries all lowercase-letter keys of the given length.\nKey length 5 → 11 881 376 keys; redirect stdout and grep for results.",
+    formatter_class=_Fmt,
+)
+vig_bf_p.add_argument("-s", "--string", metavar="CIPHERTEXT", required=True,
+                      help="string to brute-force")
+vig_bf_p.add_argument("-l", "--len",    metavar="LEN", type=int, required=True,
+                      help="key length to test (max 5)")
+
+# ── rail_fence_brute ───────────────────────────────────────────────────────────
+rf_bf_p = subparsers.add_parser(
+    "rail_fence_brute",
+    help="brute-force Rail-Fence key and offset",
+    description="Tests every (rails, offset) combination. Filter output with grep.",
+    formatter_class=_Fmt,
+)
+rf_bf_p.add_argument("-s", "--string", metavar="CIPHERTEXT", required=True,
+                     help="string to brute-force")
+
+
+# ─── Show help when called with no args or just a sub-command name ─────────────
 if len(sys.argv) == 1:
     brute_force.display_art()
     parser.print_help()
     sys.exit(0)
 
-# Display help according to the cipher mode
-if len(sys.argv) == 2:
-    cmd = sys.argv[1]
-    if cmd in subparsers.choices:
-        subparsers.choices[cmd].print_help()
-        sys.exit(0)
+if len(sys.argv) == 2 and sys.argv[1] in subparsers.choices:
+    brute_force.display_art()
+    subparsers.choices[sys.argv[1]].print_help()
+    sys.exit(0)
 
-# Parse all the arguments
 args = parser.parse_args()
 
+
+# ─── Dispatch ─────────────────────────────────────────────────────────────────
+
 if args.cipher == "atbash":
+    brute_force.print_section("Atbash  —  decode")
     res = brute_force.atbash_decode(args.string)
-    print(res)
+    brute_force.print_result("Plaintext →", res)
+    print()
 
-if args.cipher == "vigenere":
+elif args.cipher == "vigenere":
+    brute_force.print_section(f"Vigenère  —  decode  (key: {args.key})")
     res = brute_force.vigenere_decode(args.string, args.key)
-    print(res)
+    brute_force.print_result("Plaintext →", res)
+    print()
 
-if args.cipher == "rail_fence":
+elif args.cipher == "rail_fence":
+    brute_force.print_section(f"Rail-Fence  —  decode  (rails={args.key}, offset={args.offset})")
     res = brute_force.rail_fence(args.string, args.key, args.offset)
-    print(res)
+    brute_force.print_result("Plaintext →", res)
+    print()
 
-if args.cipher == "xor":
+elif args.cipher == "xor":
+    brute_force.print_section("XOR  —  decode")
     cipher_bytes = brute_force.to_bytes(args.string)
-    key_bytes = brute_force.to_bytes(args.key)
-    res = brute_force.xor_bytes(cipher_bytes, key_bytes)
-    print(f"\nXOR Result: {res.decode(errors='ignore')}")
+    key_bytes    = brute_force.to_bytes(args.key)
+    result       = brute_force.xor_bytes(cipher_bytes, key_bytes)
+    brute_force.print_result("Raw bytes  →", brute_force.format_xor_result(result))
+    try:
+        decoded = result.decode("utf-8")
+        brute_force.print_result("UTF-8 text →", decoded)
+    except UnicodeDecodeError:
+        pass
+    print()
 
-if args.cipher == "xor_brute":
+elif args.cipher == "xor_brute":
+    if args.length > 4:
+        brute_force.print_warn("Maximum key length is 4.")
+        sys.exit(1)
+
     cipher_bytes = brute_force.to_bytes(args.string)
-    key_length = args.length
-    if key_length > 4:
-        print("max key len is 4.")
-        sys.exit(0)
-    charset = string.printable.encode()
-    total_keys = len(charset) ** key_length
-    print(f"[+] Total keys to test: {total_keys:,}")
-    print(f"[+] Bruteforcing XOR keys of length {key_length}...\n")
+    charset      = bytes(range(256))
+    total        = 256 ** args.length
+    needle       = args.filter  # None or a string to match
 
-    for i, key in enumerate(itertools.product(charset, repeat=key_length)):
-        key_bytes = bytes(key)
-        decoded = brute_force.xor_bytes(cipher_bytes, key_bytes)
+    filter_desc = f"  filter: {brute_force.c(needle, brute_force._MAGENTA)}" if needle else "  no filter — showing all results"
+    brute_force.print_section(f"XOR  —  brute-force  (key length: {args.length})")
+    brute_force.print_info(f"Total keys to test: {total:,}")
+    brute_force.print_info(filter_desc + "\n")
 
-        if brute_force.is_printable(decoded):
-            try:
-                text = decoded.decode("ascii")
-                print(f"{i} KEY = {key_bytes}  ->  {text.encode()}")
-            except UnicodeDecodeError:
-                pass
+    val_label = brute_force.c("Raw bytes  →", brute_force._CYAN)
+    for key_tuple in itertools.product(charset, repeat=args.length):
+        key_bytes   = bytes(key_tuple)
+        xored       = brute_force.xor_bytes(cipher_bytes, key_bytes)
+        display_val = brute_force.format_xor_result(xored)
 
-if args.cipher == "rot13_brute":
-    for i in range(0, 26):
-        res = brute_force.rot_13(args.string, i)
-        print(f"{i:2}: {res}")
+        if needle and needle not in display_val:
+            continue
 
-if args.cipher == "rot47_brute":
-    for i in range(0, 94):
+        key_label = brute_force.c(f"key=0x{key_bytes.hex()}", brute_force._YELLOW)
+        print(f"  {key_label}  {val_label}  {brute_force.c(display_val, brute_force._GREEN)}")
+
+    print()
+
+elif args.cipher == "rot13_brute":
+    brute_force.print_section("ROT-N  —  brute-force  (all 26 shifts)")
+    for i in range(26):
+        res = brute_force.rot_n(args.string, i)
+        shift_label = brute_force.c(f"ROT-{i:>2}", brute_force._YELLOW)
+        print(f"  {shift_label}  {brute_force.c(res, brute_force._GREEN)}")
+    print()
+
+elif args.cipher == "rot47_brute":
+    brute_force.print_section("ROT-47  —  brute-force  (all 94 shifts)")
+    for i in range(94):
         res = brute_force.rot_47(args.string, i)
-        print(f"{i:2}: {res}")
+        shift_label = brute_force.c(f"ROT-{i:>2}", brute_force._YELLOW)
+        print(f"  {shift_label}  {brute_force.c(res, brute_force._GREEN)}")
+    print()
 
-if args.cipher == "affine_brute":
+elif args.cipher == "affine_brute":
+    brute_force.print_section("Affine  —  brute-force  (312 key pairs)")
     brute_force.affine(args.string)
+    print()
 
-if args.cipher == "vigenere_brute":
+elif args.cipher == "vigenere_brute":
+    brute_force.print_section(f"Vigenère  —  brute-force  (key length: {args.len})")
     brute_force.vigenere(args.string, args.len)
+    print()
 
-if args.cipher == "rail_fence_brute":
-    for key in range(2, len(args.string)):
+elif args.cipher == "rail_fence_brute":
+    brute_force.print_section("Rail-Fence  —  brute-force  (all rails × offsets)")
+    text = args.string
+    for key in range(2, len(text)):
         period = 2 * (key - 1)
+        header = brute_force.c(f"  ── rails={key:03}  period={period:03} ──", brute_force._BLUE)
+        print(header)
         for offset in range(period):
-            res = brute_force.rail_fence(args.string, key, offset)
-            print(f"key = {key:03} | period = {offset:03} || output = {res}")
-        print("\n")
+            res = brute_force.rail_fence(text, key, offset)
+            print(
+                f"    {brute_force.c(f'offset={offset:03}', brute_force._YELLOW)}"
+                f"  {brute_force.c(res, brute_force._GREEN)}"
+            )
+        print()
