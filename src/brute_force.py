@@ -291,10 +291,7 @@ def print_kpa_hit(hit: dict, index: int):
 
     key_hex = key.hex(" ")
     key_asc = "".join(chr(b) if 0x20 <= b <= 0x7E else "·" for b in key)
-    try:
-        pt_str = pt.decode("utf-8", errors="replace")
-    except Exception:
-        pt_str = repr(pt)
+    pt_str  = format_xor_result(pt)
 
     width = 60
     bar   = c("─" * width, _GREEN)
@@ -305,7 +302,7 @@ def print_kpa_hit(hit: dict, index: int):
     print(f"  {c('offset   :', _DIM)}  {c(f'{offset:#06x}  ({offset})', _BOLD)}")
     print(f"  {c('key hex  :', _DIM)}  {c(key_hex, _CYAN)}")
     print(f"  {c('key asc  :', _DIM)}  {c(key_asc, _MAGENTA)}")
-    print(f"  {c('plaintext:', _DIM)}  {c(pt_str, _GREEN)}")
+    print(f"  {c('Raw bytes:', _DIM)}  {c(pt_str, _GREEN)}")
     print(f"  {bar}")
 
 
